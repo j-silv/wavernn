@@ -530,8 +530,8 @@ class AudioDataset(torch.utils.data.IterableDataset):
         )
         spectrogram: np.ndarray
         spectrogram = librosa.feature.melspectrogram(
-            padded_waveform,
-            sr,
+            y=padded_waveform,
+            sr=sr,
             n_fft=mel.n_fft,
             hop_length=mel.hop_length,
             win_length=mel.win_length,

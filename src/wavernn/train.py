@@ -102,7 +102,7 @@ def train(  # pylint: disable=missing-param-doc
         # error-prone, as it is impossible to set an incorrect feature
         # normalization.
         model = Model(model_config)
-        data_module.setup()
+        data_module.setup(stage="fit")
         model.initialize_input_stats(data_module.train_dataloader())
         resume_from = None
 
@@ -118,13 +118,13 @@ def train(  # pylint: disable=missing-param-doc
     )
     logger = TensorBoardLogger(save_dir=path, version="logs", name=None)
     trainer = pl.Trainer(
-        resume_from_checkpoint=resume_from,
         callbacks=[checkpoint_callback],
         val_check_interval=test_every,
         logger=logger,
-        gpus=1,
+        accelerator="auto",
+        devices=1
     )
-    trainer.fit(model, data_module)
+    trainer.fit(model, data_module, ckpt_path=resume_from)
 
 
 @click.command("export")

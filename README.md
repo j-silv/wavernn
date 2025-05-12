@@ -21,7 +21,7 @@ To learn about what WaveRNN is or understand the nitty-gritty details of impleme
 ## Installation
 
 Prior to installation, we recommend setting up your environment with
-[pyenv](https://github.com/pyenv/pyenv) with Python 3.9.6 and a [virtualenv](https://docs.python.org/3/library/venv.html). The
+[pyenv](https://github.com/pyenv/pyenv) with Python 3.11.12 and a [virtualenv](https://docs.python.org/3/library/venv.html). The
 remainder of the installation instructions assume that you are using an
 appropriate environment or virtualenv. You will also need the following packages:
 ```
@@ -62,7 +62,7 @@ libritts
 To download one of the datasets, use `wavernn dataset download` and provide a path to which to download to:
 
 ```
-$ wavernn dataset download ljspeech --path ./ljspeech
+$ wavernn dataset download ljspeech --destination ./ljspeech
 ```
 
 Once a dataset is downloaded, you can start training with `wavernn train`, specifying a config file and where to save the model:
