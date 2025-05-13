@@ -768,7 +768,6 @@ class ExportableWaveRNN(torch.nn.Module):
         self.pre_emphasis = config.data.mel.pre_emphasis
 
     @torch.jit.export
-    @torch.no_grad()
     def synthesize(
         self, spectrogram: Tensor, state: Optional[Tuple[Tensor, Tensor]]
     ) -> Tuple[Tensor, Tuple[Tensor, Tensor]]:
@@ -783,37 +782,38 @@ class ExportableWaveRNN(torch.nn.Module):
         Returns:
           A tuple containing the synthesized data and the final state.
         """
-        if state is None:
-            sample = self.init_sample.clone()
-            gru_state = self.init_state.clone()
-        else:
-            sample, gru_state = state
+        with torch.no_grad():
+            if state is None:
+                sample = self.init_sample.clone()
+                gru_state = self.init_state.clone()
+            else:
+                sample, gru_state = state
 
-        # Run conditioner network.
-        hidden = self.conditioner(spectrogram.unsqueeze(0))
-        conditioning = hidden.squeeze(0).transpose(0, 1)
-        activations_ih = torch.addmm(
-            self.gru_bias_ih, conditioning, self.gru_weight_ih_t
-        )
+            # Run conditioner network.
+            hidden = self.conditioner(spectrogram.unsqueeze(0))
+            conditioning = hidden.squeeze(0).transpose(0, 1)
+            activations_ih = torch.addmm(
+                self.gru_bias_ih, conditioning, self.gru_weight_ih_t
+            )
 
-        # Run autoregressive network.
-        output = torch.ops.wavernn.wavernn_inference(
-            activations_ih,
-            sample,
-            gru_state,
-            self.sample_activations,
-            self.gru_weight_hh,
-            self.gru_bias_hh,
-            self.hidden_weight,
-            self.hidden_bias,
-            self.output_weight,
-            self.output_bias,
-            self.hop_length,
-            False,
-        )
-        output = self.domain.dequantize(output)
+            # Run autoregressive network.
+            output = torch.ops.wavernn.wavernn_inference(
+                activations_ih,
+                sample,
+                gru_state,
+                self.sample_activations,
+                self.gru_weight_hh,
+                self.gru_bias_hh,
+                self.hidden_weight,
+                self.hidden_bias,
+                self.output_weight,
+                self.output_bias,
+                self.hop_length,
+                False,
+            )
+            output = self.domain.dequantize(output)
 
-        return output, (sample, gru_state)
+            return output, (sample, gru_state)
 
 
 class InferenceState(NamedTuple):
