@@ -608,6 +608,7 @@ class Model(pl.LightningModule):
         frames = []
         for batch in data:
             spectrogram = batch.spectrogram[:, padding_frames:-padding_frames]
+            # this line fails if we don't have a consistent batch length
             spectrogram = spectrogram.transpose(1, 2).reshape((-1, n_mels))
             num_frames += spectrogram.shape[0]
             frames.append(spectrogram)

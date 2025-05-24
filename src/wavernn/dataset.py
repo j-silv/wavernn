@@ -597,7 +597,8 @@ class AudioDataModule(pl.LightningDataModule):
           A training data loader.
         """
         return torch.utils.data.DataLoader(
-            self.train_set, batch_size=self.config.batch_size, num_workers=16
+            # drop_last makes sure we have a complete batch size
+            self.train_set, batch_size=self.config.batch_size, num_workers=16, drop_last=True
         )
 
     def val_dataloader(self) -> torch.utils.data.DataLoader:
@@ -608,7 +609,7 @@ class AudioDataModule(pl.LightningDataModule):
           A validation data loader.
         """
         return torch.utils.data.DataLoader(
-            self.valid_set, batch_size=self.config.batch_size, num_workers=8
+            self.valid_set, batch_size=self.config.batch_size, num_workers=8, drop_last=True
         )
 
     def test_dataloader(self) -> torch.utils.data.DataLoader:
@@ -619,5 +620,5 @@ class AudioDataModule(pl.LightningDataModule):
           A test data loader.
         """
         return torch.utils.data.DataLoader(
-            self.test_set, batch_size=self.config.batch_size
+            self.test_set, batch_size=self.config.batch_size, drop_last=True
         )
